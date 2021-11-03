@@ -1,0 +1,38 @@
+#!/bin/bash
+
+#WILL CONVERT STRUCTURAL AND FUNCTIONAL PARs/RECs TO NIFTI (.nii).
+
+source=$(zenity --file-selection --directory --title "Select Data Directory")
+cdir="/data1/PROJECTS/GUIdemo/fMRIpreprocessingGUI" #directory where this file and the dcm2nii.ini/.txt files are located
+
+for task in `ls ${source}` #keep for separate functional/structural folders
+  do
+    if [ "$task" == "Structural" ]; then
+      for subject in `ls ${source}/${task}/` #goes through each subject in structural folder
+	do
+	  if ls ${source}/${task}/${subject}/*.PAR 1> /dev/null 2>&1; then # will only run if finds PAR files
+	    if ls ${source}/${task}/${subject}/*.nii 1> /dev/null 2>&1; then # will skip if finds .nii files
+	      :
+	    else
+	      cat ${cdir}/dcm2niigui.txt > ${cdir}/dcm2nii.ini # updates .ini file
+	      dcm2nii -b ${cdir}/dcm2nii.ini -o ${source}/${task}/${subject} ${source}/${task}/${subject}/*.PAR #dcm2nii command
+	    fi
+	  fi
+      done
+    elif [ "$task" == "Functional" ]; then
+      for subject in `ls ${source}/${task}/`
+        do
+        for run in `ls ${source}/${task}/${subject}/`
+	  do
+	    if ls ${source}/${task}/${subject}/${run}/*.PAR 1> /dev/null 2>&1; then
+	      if ls ${source}/${task}/${subject}/${run}/*.nii 1> /dev/null 2>&1; then
+	        :
+	      else
+	        cat ${cdir}/dcm2niigui.txt > ${cdir}/dcm2nii.ini
+	        dcm2nii -b ${cdir}/dcm2nii.ini -o ${source}/${task}/${subject}/${run} ${source}/${task}/${subject}/${run}/*.PAR
+	      fi
+	    fi
+	done
+      done
+    fi
+done

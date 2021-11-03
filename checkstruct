@@ -1,0 +1,11 @@
+#!/bin/bash
+# Run this script to check structural scans in MRIcron on all subjects within a user-defined directory.
+# Script goes through all folders (assuming subject folders with anatomical images inside) loading the specified image wildcard and maxmizing the window. Once you close MRIcron, it will open the next subject.
+
+loc=$(zenity --file-selection --directory --title "Select Structural Directory")
+
+for subj in `ls ${loc}`
+  do
+    find ${loc}/${subj} -name WOODWARD*.nii -printf "%f\n"
+    mricron ${loc}/${subj}/WOODWARD*.nii -x
+done
